@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:to_do_app/data/task_data.dart';
+import 'package:provider/provider.dart';
+import 'package:to_do_app/data/task_service.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -9,49 +10,69 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final List<Task> lists = getDummyTasks();
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xff0a0c60),
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          if (constraints.maxWidth < 600) {
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: lists.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _container(index);
-              },
-            );
-          } else if (constraints.maxWidth < 1200) {
-            return GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2),
-              padding: const EdgeInsets.all(20),
-              itemCount: lists.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _container(index);
-              },
-            );
-          } else {
-            return GridView.builder(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4),
-              padding: const EdgeInsets.all(20),
-              itemCount: lists.length,
-              itemBuilder: (BuildContext context, int index) {
-                return _container(index);
-              },
-            );
-          }
-        },
+    return Consumer<TaskService>(
+      builder: (context, taskModel, child) => Scaffold(
+        backgroundColor: Color(0xff0a0c60),
+        body: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            if (constraints.maxWidth < 600) {
+              return ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: taskModel.tasks.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _container(taskModel.tasks[index], index, 1);
+                },
+              );
+            } else if (constraints.maxWidth < 700) {
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2),
+                padding: const EdgeInsets.all(20),
+                itemCount: taskModel.tasks.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _container(taskModel.tasks[index], index, 10);
+                },
+              );
+            } else if (constraints.maxWidth < 1000) {
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3),
+                padding: const EdgeInsets.all(20),
+                itemCount: taskModel.tasks.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _container(taskModel.tasks[index], index, 10);
+                },
+              );
+            } else if (constraints.maxWidth < 1600) {
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4),
+                padding: const EdgeInsets.all(20),
+                itemCount: taskModel.tasks.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _container(taskModel.tasks[index], index, 50);
+                },
+              );
+            } else {
+              return GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 6),
+                padding: const EdgeInsets.all(20),
+                itemCount: taskModel.tasks.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _container(taskModel.tasks[index], index, 50);
+                },
+              );
+            }
+          },
+        ),
       ),
     );
   }
 
-  Widget _container(element) {
+  Widget _container(item, index, maxLines) {
     return Container(
       margin: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -76,9 +97,10 @@ class _HomeViewState extends State<HomeView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Checkbox(
-                value: lists[element].isCompleted,
+                value: item.isCompleted,
                 onChanged: (value) {
-                  setState(() => lists[element].isCompleted = value!);
+                  final taskModel = context.read<TaskService>();
+                  taskModel.updateTaskCompletion(item);
                 }),
             Flexible(
               child: Column(
@@ -90,14 +112,14 @@ class _HomeViewState extends State<HomeView> {
                       children: [
                         Flexible(
                           child: Text(
-                            lists[element].title,
+                            item.title,
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 20),
                           ),
                         ),
                         Flexible(
                           child: Text(
-                            lists[element].dueDate.toString(),
+                            item.dueDate.toString(),
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 10),
                           ),
@@ -106,8 +128,9 @@ class _HomeViewState extends State<HomeView> {
                     ),
                     Flexible(
                       child: Text(
-                        lists[element].description,
+                        item.description,
                         overflow: TextOverflow.ellipsis,
+                        maxLines: maxLines,
                         style:
                             const TextStyle(color: Colors.white, fontSize: 15),
                       ),
