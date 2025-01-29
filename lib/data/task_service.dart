@@ -6,7 +6,16 @@ class TaskService extends ChangeNotifier {
   List<TaskServiceItem> get tasks => _tasks;
 
   void addTask(TaskServiceItem task) {
-    _tasks.add(task);
+    if (_tasks.isEmpty) {
+      _tasks.add(task);
+    } else {
+      for (int i = 0; i < _tasks.length; i++) {
+        if (task.dueDate.compareTo(_tasks[i].dueDate) < 0) {
+          _tasks.insert(i, task);
+          break;
+        }
+      }
+    }
     notifyListeners();
   }
 
