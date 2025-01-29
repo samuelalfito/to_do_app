@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../main.dart';
+
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
 
@@ -9,8 +11,15 @@ class SettingsView extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Settings Page'),
       ),
-      body: const Center(
-        child: Text('Welcome to the Settings Page!'),
+      body: Column(
+        children: [
+          ElevatedButton(
+              onPressed: () => MyApp.of(context).changeTheme(ThemeMode.light),
+              child: Text('Light')),
+          ElevatedButton(
+              onPressed: () => MyApp.of(context).changeTheme(ThemeMode.dark),
+              child: Text('Dark')),
+        ],
       ),
     );
   }
