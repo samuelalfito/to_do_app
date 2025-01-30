@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:to_do_app/views/navbar/nav_bar_view.dart';
 
 import 'data/task_service.dart';
+import 'theme.dart';
 
 void main() {
   runApp(
@@ -35,11 +36,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData.dark(),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
       home: NavBarView(),
