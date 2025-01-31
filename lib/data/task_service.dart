@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:uuid/uuid.dart';
 
 class TaskService extends ChangeNotifier {
   late final List<TaskServiceItem> _tasks = [];
@@ -31,9 +32,22 @@ class TaskService extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void updateTask(TaskServiceItem task) {
+    final index = _tasks.indexOf(task);
+    if (index != -1) {
+      _tasks[index] = task;
+      notifyListeners();
+    }
+  }
+
+  TaskServiceItem getTaskById(String itemId) {
+    return _tasks.firstWhere((task) => task.itemId == itemId);
+  }
 }
 
 class TaskServiceItem extends ChangeNotifier {
+  final String itemId;
   String title;
   String description;
   DateTime dueDate;
@@ -44,7 +58,7 @@ class TaskServiceItem extends ChangeNotifier {
     required this.description,
     required this.dueDate,
     this.isCompleted = false,
-  });
+  }) : itemId = Uuid().v4();
 
   void setTitle(String title) {
     this.title = title;
