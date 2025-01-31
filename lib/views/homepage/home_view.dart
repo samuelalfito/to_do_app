@@ -29,7 +29,7 @@ class _HomeViewState extends State<HomeView> {
                 padding: const EdgeInsets.all(20),
                 itemCount: taskModel.tasks.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return _container(taskModel.tasks[index], index, 1);
+                  return _container(taskModel.tasks[index], 1);
                 },
               );
             } else {
@@ -43,7 +43,7 @@ class _HomeViewState extends State<HomeView> {
                 padding: const EdgeInsets.all(20),
                 itemCount: taskModel.tasks.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return _container(taskModel.tasks[index], index, 2);
+                  return _container(taskModel.tasks[index], 2);
                 },
               );
             }
@@ -53,7 +53,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _container(item, index, maxLines) {
+  Widget _container(item, maxLines) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
