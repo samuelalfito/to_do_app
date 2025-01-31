@@ -118,13 +118,19 @@ class _CreateTaskViewState extends State<CreateTaskView> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final taskModel = context.read<TaskService>();
+                    DateTime dueDate = DateTime(
+                      _selectedDate.year,
+                      _selectedDate.month,
+                      _selectedDate.day,
+                      _selectedTime.hour,
+                      _selectedTime.minute,
+                    );
 
                     taskModel.addTask(
                       TaskServiceItem(
                         title: _titleController.text,
                         description: _descriptionController.text,
-                        dueDate:
-                            '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ${_selectedTime.format(context)}',
+                        dueDate: dueDate,
                       ),
                     );
                   }
@@ -221,13 +227,19 @@ class _CreateTaskViewState extends State<CreateTaskView> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     final taskModel = context.read<TaskService>();
+                    DateTime dueDate = DateTime(
+                      _selectedDate.year,
+                      _selectedDate.month,
+                      _selectedDate.day,
+                      _selectedTime.hour,
+                      _selectedTime.minute,
+                    );
 
                     taskModel.addTask(
                       TaskServiceItem(
                         title: _titleController.text,
                         description: _descriptionController.text,
-                        dueDate:
-                            '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ${_selectedTime.format(context)}',
+                        dueDate: dueDate,
                       ),
                     );
                   }

@@ -36,7 +36,7 @@ class TaskService extends ChangeNotifier {
 class TaskServiceItem extends ChangeNotifier {
   String title;
   String description;
-  String dueDate;
+  DateTime dueDate;
   bool isCompleted;
 
   TaskServiceItem({
@@ -56,7 +56,7 @@ class TaskServiceItem extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setDueDate(String dueDate) {
+  void setDueDate(DateTime dueDate) {
     this.dueDate = dueDate;
     notifyListeners();
   }
