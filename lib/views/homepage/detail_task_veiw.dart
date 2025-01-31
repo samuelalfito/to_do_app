@@ -14,75 +14,80 @@ class DetailTaskView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<TaskService>(
-        builder: (context, taskService, child) => Scaffold(
-              appBar: AppBar(
-                title: const Text('Detail Task'),
-              ),
-              body: SingleChildScrollView(
-                  child: Column(
-                children: [
-                  _container(taskService.getTaskById(itemId)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(width: 20),
-                      Flexible(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    EditTaskView(itemId: itemId),
-                              ),
-                            );
-                          },
-                          child: const Text('Edit'),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      Flexible(
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            bool? confirmDelete = await showDialog<bool>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  title: const Text('Confirm Delete'),
-                                  content: const Text(
-                                      'Are you sure you want to delete this task?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(false);
-                                      },
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop(true);
-                                      },
-                                      child: const Text('Delete'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
+    return Consumer<TaskService>(builder: (context, taskService, child) {
+      final task = taskService.getTaskById(itemId);
+      if (task == null) {
+        return Center(child: Text('Task not found'));
+      }
 
-                            if (confirmDelete == true) {
-                              taskService.deleteTask(itemId);
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: const Text('Delete'),
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Detail Task'),
+        ),
+        body: SingleChildScrollView(
+            child: Column(
+          children: [
+            _container(task),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 20),
+                Flexible(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditTaskView(itemId: itemId),
                         ),
-                      )
-                    ],
+                      );
+                    },
+                    child: const Text('Edit'),
                   ),
-                ],
-              )),
-            ));
+                ),
+                const SizedBox(width: 20),
+                Flexible(
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      bool? confirmDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Confirm Delete'),
+                            content: const Text(
+                                'Are you sure you want to delete this task?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(false);
+                                },
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+
+                      if (confirmDelete == true) {
+                        Navigator.pop(context);
+                        taskService.deleteTask(itemId);
+                      }
+                    },
+                    child: const Text('Delete'),
+                  ),
+                )
+              ],
+            ),
+          ],
+        )),
+      );
+    });
   }
 
   Widget _container(TaskServiceItem item) {

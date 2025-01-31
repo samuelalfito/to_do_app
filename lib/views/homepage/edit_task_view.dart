@@ -22,28 +22,39 @@ class _EditTaskViewState extends State<EditTaskView> {
   @override
   void initState() {
     super.initState();
-    final task = context.read<TaskService>().getTaskById(widget.itemId);
-    _titleController = TextEditingController(text: task.title);
-    _descriptionController = TextEditingController(text: task.description);
-    _selectedDate = task.dueDate;
-    _selectedTime =
-        TimeOfDay(hour: task.dueDate.hour, minute: task.dueDate.minute);
+    final task = Provider.of<TaskService>(context, listen: false).getTaskById(widget.itemId);
+    if (task != null) {
+      _titleController = TextEditingController(text: task.title);
+      _descriptionController = TextEditingController(text: task.description);
+      _selectedDate = task.dueDate;
+      _selectedTime = TimeOfDay(hour: task.dueDate.hour, minute: task.dueDate.minute);
+    } else {
+      _titleController = TextEditingController();
+      _descriptionController = TextEditingController();
+      _selectedDate = DateTime.now();
+      _selectedTime = TimeOfDay.now();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskService>(
-        builder: (context, taskModel, child) => Scaffold(
-            appBar: AppBar(
-              title: const Text('Edit Task'),
-            ),
-            body: SingleChildScrollView(
-              child: Column(
-                children: [
-                  _container(taskModel.getTaskById(widget.itemId)),
-                  const SizedBox(width: 20),
-                  Center(
-                    child: Flexible(
+        builder: (context, taskService, child) {
+          final task = taskService.getTaskById(widget.itemId);
+          if (task == null) {
+            return Center(child: Text('Task not found'));
+          }
+
+          return Scaffold(
+              appBar: AppBar(
+                title: const Text('Edit Task'),
+              ),
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _container(task),
+                    const SizedBox(width: 20),
+                    Center(
                       child: ElevatedButton(
                         onPressed: () async {
                           bool? confirmSave = await showDialog<bool>(
@@ -73,7 +84,7 @@ class _EditTaskViewState extends State<EditTaskView> {
 
                           if (confirmSave == true &&
                               _formKey.currentState!.validate()) {
-                            final taskModel = context.read<TaskService>();
+                            final taskService = context.read<TaskService>();
                             DateTime dueDate = DateTime(
                               _selectedDate.year,
                               _selectedDate.month,
@@ -82,7 +93,7 @@ class _EditTaskViewState extends State<EditTaskView> {
                               _selectedTime.minute,
                             );
 
-                            taskModel.updateTask(
+                            taskService.updateTask(
                               TaskServiceItem(
                                 title: _titleController.text,
                                 description: _descriptionController.text,
@@ -96,11 +107,12 @@ class _EditTaskViewState extends State<EditTaskView> {
                         },
                         child: const Text('Save'),
                       ),
-                    ),
-                  )
-                ],
-              ),
-            )));
+                    )
+                  ],
+                ),
+              ));
+        }
+    );
   }
 
   Widget _container(TaskServiceItem item) {
@@ -118,7 +130,9 @@ class _EditTaskViewState extends State<EditTaskView> {
               controller: _titleController,
               decoration: const InputDecoration(hintText: 'Title'),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) {
+                if (value == null || value
+                    .trim()
+                    .isEmpty) {
                   return 'Title is required';
                 } else if (value.length > 50) {
                   return 'Title must be less than 50 characters';
@@ -144,7 +158,9 @@ class _EditTaskViewState extends State<EditTaskView> {
                         context: context,
                         initialDate: _selectedDate,
                         firstDate: DateTime(2021),
-                        lastDate: DateTime(DateTime.now().year + 5),
+                        lastDate: DateTime(DateTime
+                            .now()
+                            .year + 5),
                       );
                       if (pickedDate != null && pickedDate != _selectedDate) {
                         setState(() {
@@ -153,7 +169,8 @@ class _EditTaskViewState extends State<EditTaskView> {
                       }
                     },
                     child: Text(
-                        '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+                        '${_selectedDate.day}/${_selectedDate
+                            .month}/${_selectedDate.year}'),
                   ),
                 ),
               ],

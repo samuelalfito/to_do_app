@@ -7,16 +7,8 @@ class TaskService extends ChangeNotifier {
   List<TaskServiceItem> get tasks => _tasks;
 
   void addTask(TaskServiceItem task) {
-    if (_tasks.isEmpty || task.dueDate.compareTo(_tasks.last.dueDate) == 0 || task.dueDate.compareTo(_tasks.last.dueDate) > 0) {
-      _tasks.add(task);
-    } else {
-      for (int i = 0; i < _tasks.length; i++) {
-        if (task.dueDate.compareTo(_tasks[i].dueDate) < 0) {
-          _tasks.insert(i, task);
-          break;
-        }
-      }
-    }
+    _tasks.add(task);
+    _tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
     notifyListeners();
   }
 
@@ -36,13 +28,23 @@ class TaskService extends ChangeNotifier {
   void updateTask(TaskServiceItem newTask, String itemId) {
     final index = _tasks.indexWhere((task) => task.itemId == itemId);
     if (index != -1) {
-      _tasks[index] = newTask;
+      _tasks[index]
+        ..title = newTask.title
+        ..description = newTask.description
+        ..dueDate = newTask.dueDate
+        ..isCompleted = newTask.isCompleted;
+
+      _tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
       notifyListeners();
     }
   }
 
-  TaskServiceItem getTaskById(String itemId) {
-    return _tasks.firstWhere((task) => task.itemId == itemId);
+  TaskServiceItem? getTaskById(String itemId) {
+    try {
+      return _tasks.firstWhere((task) => task.itemId == itemId);
+    } catch (e) {
+      return null;
+    }
   }
 
   void deleteTask(String itemId) {
