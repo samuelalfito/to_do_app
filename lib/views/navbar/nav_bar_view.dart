@@ -83,7 +83,11 @@ class _NavBarViewState extends State<NavBarView> {
               ),
             ],
           ),
-          VerticalDivider(thickness: 1, width: 1),
+          VerticalDivider(
+            thickness: 1,
+            width: 1,
+            color: Theme.of(context).dividerColor,
+          ),
           Expanded(child: _tabs[_currentIndex]),
         ],
       ),
