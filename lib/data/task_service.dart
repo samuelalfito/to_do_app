@@ -33,16 +33,21 @@ class TaskService extends ChangeNotifier {
     }
   }
 
-  void updateTask(TaskServiceItem task) {
-    final index = _tasks.indexOf(task);
+  void updateTask(TaskServiceItem newTask, String itemId) {
+    final index = _tasks.indexWhere((task) => task.itemId == itemId);
     if (index != -1) {
-      _tasks[index] = task;
+      _tasks[index] = newTask;
       notifyListeners();
     }
   }
 
   TaskServiceItem getTaskById(String itemId) {
     return _tasks.firstWhere((task) => task.itemId == itemId);
+  }
+
+  void deleteTask(String itemId) {
+    _tasks.removeWhere((task) => task.itemId == itemId);
+    notifyListeners();
   }
 }
 
