@@ -10,8 +10,9 @@ class CreateTaskView extends StatefulWidget {
 }
 
 class _CreateTaskViewState extends State<CreateTaskView> {
-  String title = '';
-  String description = '';
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   TimeOfDay _selectedTime = TimeOfDay.now();
 
@@ -22,21 +23,55 @@ class _CreateTaskViewState extends State<CreateTaskView> {
               appBar: AppBar(
                 title: const Text('Create Task'),
               ),
-              body: Column(
+              body: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  if (constraints.maxWidth < 600) {
+                    return _phoneLayout();
+                  } else {
+                    return _desktopLayout();
+                  }
+                },
+              ),
+            ));
+  }
+
+  Widget _phoneLayout() {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Title: '),
+              TextFormField(
+                maxLines: null,
+                controller: _titleController,
+                decoration: const InputDecoration(hintText: 'Title'),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Title is required';
+                  } else if (value.length > 50) {
+                    return 'Title must be less than 50 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              Text('Description (optional): '),
+              TextFormField(
+                maxLines: null,
+                controller: _descriptionController,
+                decoration: const InputDecoration(hintText: 'Description'),
+              ),
+              const SizedBox(height: 20),
+              Row(
                 children: [
-                  TextField(
-                    onChanged: (value) {
-                      title = value;
-                    },
-                    decoration: const InputDecoration(hintText: 'Title'),
-                  ),
-                  TextField(
-                    onChanged: (value) {
-                      description = value;
-                    },
-                    decoration: const InputDecoration(hintText: 'Description'),
-                  ),
-                  ElevatedButton(
+                  Flexible(child: Text('Due Date: ')),
+                  Flexible(
+                    child: TextButton(
                       onPressed: () async {
                         final DateTime? pickedDate = await showDatePicker(
                           context: context,
@@ -51,34 +86,158 @@ class _CreateTaskViewState extends State<CreateTaskView> {
                         }
                       },
                       child: Text(
-                          'Due Date: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}')),
-                  ElevatedButton(
+                          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Time: ',
+                    ),
+                  ),
+                  Flexible(
+                    child: TextButton(
                       onPressed: () async {
                         final TimeOfDay? pickedTime = await showTimePicker(
-                            context: context, initialTime: TimeOfDay.now());
+                            context: context, initialTime: _selectedTime);
                         if (pickedTime != null && pickedTime != _selectedTime) {
                           setState(() {
                             _selectedTime = pickedTime;
                           });
                         }
                       },
-                      child: Text('Time: ${_selectedTime.format(context)}')),
-                  ElevatedButton(
-                    onPressed: () {
-                      final taskModel = context.read<TaskService>();
-                      taskModel.addTask(
-                        TaskServiceItem(
-                          title: title,
-                          description: description,
-                          dueDate:
-                              '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ${_selectedTime.format(context)}',
-                        ),
-                      );
-                    },
-                    child: const Text('Create Task'),
+                      child: Text(_selectedTime.format(context)),
+                    ),
                   ),
                 ],
               ),
-            ));
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    final taskModel = context.read<TaskService>();
+
+                    taskModel.addTask(
+                      TaskServiceItem(
+                        title: _titleController.text,
+                        description: _descriptionController.text,
+                        dueDate:
+                            '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ${_selectedTime.format(context)}',
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Create Task'),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _desktopLayout() {
+    return Form(
+      key: _formKey,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Title: '),
+              TextFormField(
+                maxLines: null,
+                controller: _titleController,
+                decoration: const InputDecoration(hintText: 'Title'),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Title is required';
+                  } else if (value.length > 50) {
+                    return 'Title must be less than 50 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 10),
+              Text('Description (optional): '),
+              TextFormField(
+                maxLines: null,
+                controller: _descriptionController,
+                decoration: const InputDecoration(hintText: 'Description'),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Flexible(child: Text('Due Date: ')),
+                  Flexible(
+                    child: TextButton(
+                      onPressed: () async {
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: _selectedDate,
+                          firstDate: DateTime(2021),
+                          lastDate: DateTime(DateTime.now().year + 5),
+                        );
+                        if (pickedDate != null && pickedDate != _selectedDate) {
+                          setState(() {
+                            _selectedDate = pickedDate;
+                          });
+                        }
+                      },
+                      child: Text(
+                          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      'Time: ',
+                    ),
+                  ),
+                  Flexible(
+                    child: TextButton(
+                      onPressed: () async {
+                        final TimeOfDay? pickedTime = await showTimePicker(
+                            context: context, initialTime: _selectedTime);
+                        if (pickedTime != null && pickedTime != _selectedTime) {
+                          setState(() {
+                            _selectedTime = pickedTime;
+                          });
+                        }
+                      },
+                      child: Text(_selectedTime.format(context)),
+                    ),
+                  ),
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    final taskModel = context.read<TaskService>();
+
+                    taskModel.addTask(
+                      TaskServiceItem(
+                        title: _titleController.text,
+                        description: _descriptionController.text,
+                        dueDate:
+                            '${_selectedDate.year}/${_selectedDate.month}/${_selectedDate.day} ${_selectedTime.format(context)}',
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Create Task'),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
